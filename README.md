@@ -36,7 +36,5 @@ of BLE Advertisements:
   ```
   6b00720872acf50200000000XX00YY
   ```
-  Most bytes don't change. `YY` is the heart rate in hex. `XX` seems
-  to encode some information that I have been able to interpret yet
-  (e.g., the expended energy or the time interval since the last
-  measurement).
+  Most bytes don't change. `YY` is the heart rate in hex. `XX` is
+  the expended energy in cal since the last measurement.

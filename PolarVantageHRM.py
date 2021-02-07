@@ -47,8 +47,9 @@ class ScanDelegate(btle.DefaultDelegate):
     def __init__(self, mac=None):
         super(ScanDelegate, self).__init__()
         self.mac = mac
+        self.kcal = 0
 
-    def handleDiscovery(self, dev, _newDevice, _newData):
+    def handleDiscovery(self, dev, _newDevice, newData):
         if self.mac is not None and dev.addr != self.mac:
             return
 
@@ -59,21 +60,20 @@ class ScanDelegate(btle.DefaultDelegate):
                 if adtype == btle.ScanEntry.COMPLETE_LOCAL_NAME and \
                    value.startswith('Polar Vantage'):
                     self.mac = dev.addr
-            elif adtype == btle.ScanEntry.MANUFACTURER:
+            elif adtype == btle.ScanEntry.MANUFACTURER and newData:
                 # Advertisements from Polar Vantage M (firmware
                 # ver. 5.1.8) are of the form:
                 #
                 # 6b00720872acf50200000000XX00YY
                 #
-                # Where YY is the heart rate in hex. XX also encodes
-                # something as it constantly changes but I haven't
-                # been able to figure it out yet. Judging from other
-                # HRMs from Polar it could be an indication of the
-                # expended energy or the interval between two
-                # measurements.
+                # Where YY is the heart rate in hex. XX is the
+                # expensed energy in cal.
                 assert(value.startswith('6b00720872acf50200000000'))
                 bpm = int(value[-2:], 16)
-                log.info('HR: {} bpm'.format(bpm))
+                kcal = int(value[-6:-4], 16) / 1000
+                self.kcal += kcal
+                log.info('HR: {:3d} bpm, Energy: {:8.3f} kcal'.format(
+                    bpm, self.kcal))
 
 
 def main():
