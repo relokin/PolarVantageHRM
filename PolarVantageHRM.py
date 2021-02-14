@@ -46,7 +46,7 @@ log.setLevel(logging.INFO)
 class ScanDelegate(btle.DefaultDelegate):
     def __init__(self, mac=None):
         super(ScanDelegate, self).__init__()
-        self.mac = mac
+        self.mac = mac if mac is None else mac.lower()
         self.kcal = 0
 
     def handleDiscovery(self, dev, _newDevice, newData):
@@ -84,7 +84,7 @@ def main():
         help="MAC address of BLE device (default: auto-discovery)")
     args = parser.parse_args()
  
-    scanner = btle.Scanner().withDelegate(ScanDelegate(args.m.lower()))
+    scanner = btle.Scanner().withDelegate(ScanDelegate(args.m))
     while True:
         devices = []
         try:
